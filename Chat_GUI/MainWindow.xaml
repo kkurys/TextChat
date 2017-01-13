@@ -5,8 +5,58 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Chat_GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="600" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="3*"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0" IsMainMenu="True">
+            <MenuItem Header="Połączenie">
+                <MenuItem Header="_Połącz" Click="OpenConnectionWindow"></MenuItem>
+                <MenuItem Header="_Rozłącz"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Zakładki">
+                <MenuItem Header="Dodaj do zakładek"></MenuItem>
+                <MenuItem Header="Zarządzaj zakładkami"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" MinWidth="100px"></ColumnDefinition>
+                <ColumnDefinition Width="5"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <ListView Grid.Row="0" Name="lv_chat"></ListView>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0">Wyślij</Button>
+                    <TextBox Grid.Column="1"></TextBox>
+                </Grid>
+            </Grid>
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"></GridSplitter>
+            <Grid Grid.Column="2">
+                <Label>Użytkownicy</Label>
+                <ListView Name="lv_users"></ListView>
+            </Grid>
+        </Grid>
+        <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext"></GridSplitter>
+        <Grid Grid.Row="3">
+            <TabControl TabStripPlacement="Bottom">
+                <TabItem Header="WTF">
+                    
+                </TabItem>
+            </TabControl>
+        </Grid>
     </Grid>
 </Window>
