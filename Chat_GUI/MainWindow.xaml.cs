@@ -46,7 +46,7 @@ namespace Chat_GUI
                 {
                     _connection.Work();
                 }
-               
+
                 _mainViewModel.AddConnection(_connection);
             }
         }
@@ -341,7 +341,10 @@ namespace Chat_GUI
             }
 
         }
-
+        private void ConnectedUser_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            _mainViewModel.AddPrivateConversation((sender as ListViewItem).Content as ConnectedUser.ConnectedUser);
+        }
         private void Close(object sender, RoutedEventArgs e)
         {
             Close();

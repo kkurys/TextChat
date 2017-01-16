@@ -108,7 +108,13 @@
                             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"></GridSplitter>
                             <Grid Grid.Column="2">
                                 <Label>Użytkownicy</Label>
-                                <ListView Name="lv_users" ItemsSource="{Binding ConnectedUsers}"></ListView>
+                                <ListView Name="lv_users" ItemsSource="{Binding ConnectedUsers}">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <EventSetter Event="MouseDoubleClick" Handler="ConnectedUser_MouseDoubleClick" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
                             </Grid>
                         </Grid>
                     </Grid>

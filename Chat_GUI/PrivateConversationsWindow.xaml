@@ -1,0 +1,50 @@
+﻿<Window x:Class="Chat_GUI.PrivateConversationsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Chat_GUI"
+        mc:Ignorable="d"
+        Title="PrivateConversationsWindow" Height="300" Width="300">
+    <Window.CommandBindings>
+        <CommandBinding Command="local:Commands.Send" CanExecute="Send_CanExecute" Executed="Send_Executed" />
+    </Window.CommandBindings>
+    <Grid>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*"></RowDefinition>
+                <RowDefinition Height="1*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <TabControl Name="tcMain" ItemsSource="{Binding Conversations}" SelectedIndex="{Binding ActiveTab}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Username}" />
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <ListView ItemsSource="{Binding History}">
+
+                            </ListView>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <TextBox Name="tbMsg" KeyDown="tbMsg_KeyDown"></TextBox>
+                </Grid>
+                <Grid Grid.Column="1">
+                    <Button Command="local:Commands.Send">Wyślij</Button>
+                </Grid>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</Window>

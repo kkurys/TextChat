@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace Chat_GUI.ViewModels
 {
-    class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : INotifyPropertyChanged
     {
         private ObservableCollection<ConnectionViewModel> _connectionsTabs;
         private Server _server;
@@ -16,6 +16,7 @@ namespace Chat_GUI.ViewModels
             _connectionsTabs = new ObservableCollection<ConnectionViewModel>();
             _server = new Server();
         }
+        #region server
         public bool ServerRunning
         {
             get
@@ -37,6 +38,11 @@ namespace Chat_GUI.ViewModels
         {
             _server.Stop();
             ServerRunning = false;
+        }
+        #endregion
+        public void AddPrivateConversation(ConnectedUser.ConnectedUser _targetUser)
+        {
+            _connectionsTabs[ActiveConnectionTab].AddConversation(_targetUser);
         }
         public void AddConnection(ConnectionViewModel _connectionViewModel)
         {
@@ -67,7 +73,6 @@ namespace Chat_GUI.ViewModels
                 OnPropertyChanged("ActiveConnectionTab");
             }
         }
-
         public int ConnectionsCount
         {
             get
@@ -128,6 +133,7 @@ namespace Chat_GUI.ViewModels
         {
             _connectionsTabs[ActiveConnectionTab].SendMessage(msg);
         }
+
         protected virtual void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
