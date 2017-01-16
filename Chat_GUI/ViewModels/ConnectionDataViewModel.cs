@@ -1,6 +1,9 @@
-﻿namespace Chat_GUI.ViewModels
+﻿using System;
+
+namespace Chat_GUI.ViewModels
 {
-    class ConnectionDataViewModel
+    [Serializable]
+    public class ConnectionDataViewModel
     {
         public string Ip { get; set; }
         public int Port { get; set; }

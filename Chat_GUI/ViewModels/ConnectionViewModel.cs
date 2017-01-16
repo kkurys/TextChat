@@ -1,26 +1,27 @@
 ﻿using Chat_GUI.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-
 namespace Chat_GUI.ViewModels
 {
-    class ConnectionViewModel : INotifyPropertyChanged
+    public class ConnectionViewModel : INotifyPropertyChanged
     {
         private IConnection _connection;
         private ObservableCollection<string> _chatHistory;
         private ObservableCollection<string> _log;
-        private ObservableCollection<ConnectedUser> _connectedUsers;
+        private ObservableCollection<ConnectedUser.ConnectedUser> _connectedUsers;
         static readonly object _lock = new object();
         private bool _connected;
+
         public ConnectionViewModel()
         {
             _chatHistory = new ObservableCollection<string>();
             _log = new ObservableCollection<string>();
-            _connectedUsers = new ObservableCollection<ConnectedUser>();
+            _connectedUsers = new ObservableCollection<ConnectedUser.ConnectedUser>();
         }
         public bool Connected
         {
@@ -43,24 +44,32 @@ namespace Chat_GUI.ViewModels
                 return _log;
             }
         }
-        public ObservableCollection<ConnectedUser> ConnectedUsers
+        public ObservableCollection<ConnectedUser.ConnectedUser> ConnectedUsers
         {
             get
             {
                 return _connectedUsers;
             }
         }
-        public void Connect(string ip, int port)
+
+        public string Ip { get; set; } = "";
+        public int Port { get; set; } = -1;
+        public string Username { get; set; }
+        public bool Connect(string ip, int port, string username)
         {
             _connection = new Connection();
+            Ip = ip;
+            Port = port;
+            Username = username;
             try
             {
                 _log.Add("Próba połączenia z: " + ip + "...");
-                _connection.Connect(ip, port);
+                _connection.Connect(ip, port, username);
+                _log.Add("Połączono z: " + ip + "!");
                 _connected = true;
                 OnPropertyChanged("Log");
                 OnPropertyChanged("Connected");
-
+                return true;
             }
 
             catch
@@ -69,9 +78,42 @@ namespace Chat_GUI.ViewModels
                 _connected = false;
                 OnPropertyChanged("Log");
                 OnPropertyChanged("Connected");
+                return false;
             }
         }
+        public bool Reconnect()
+        {
+            try
+            {
+                _log.Add("Próba połączenia z: " + Ip + "...");
+                _connection = new Connection();
+                _connection.Connect(Ip, Port, Username);
+                _log.Add("Połączono z: " + Ip + "!");
+                _connected = true;
+                OnPropertyChanged("Log");
+                OnPropertyChanged("Connected");
+                Work();
+                return true;
+            }
 
+            catch
+            { 
+                _log.Add("Próba połączenia z: " + Ip + " nie powiodła się!");
+                _connected = false;
+                OnPropertyChanged("Log");
+                OnPropertyChanged("Connected");
+                return false;
+            }
+        }
+        public void Disconnect()
+        {
+            if (_connected)
+            {
+                _connection.Disconnect();
+                OnPropertyChanged("Connected");
+            }
+
+        }
         public void ReceiveMessages()
         {
             try
@@ -82,7 +124,7 @@ namespace Chat_GUI.ViewModels
                 while (true)
                 {
                     var msg = serializer.Deserialize(_connectionStream);
-
+                    if (msg == null) continue;
                     if (msg is string)
                     {
                         string _msg = msg as string;
@@ -90,19 +132,31 @@ namespace Chat_GUI.ViewModels
                         {
                             lock (_lock)
                             {
-                                _chatHistory.Add(_msg);
+
+                                App.Current.Dispatcher.Invoke((Action)delegate
+                                {
+                                    _chatHistory.Add(_msg);
+                                });
+
                                 OnPropertyChanged("ChatHistory");
                             }
                         }
                     }
-                    else if (msg is List<ConnectedUser>)
+                    else if (msg is List<ConnectedUser.ConnectedUser>)
                     {
-                        var _serverConnectedUsers = msg as List<ConnectedUser>;
+                        var _serverConnectedUsers = msg as List<ConnectedUser.ConnectedUser>;
 
-                        _connectedUsers.Clear();
+
+                        App.Current.Dispatcher.Invoke((Action)delegate
+                        {
+                            _connectedUsers.Clear();
+                        });
                         foreach (var _user in _serverConnectedUsers)
                         {
-                            _connectedUsers.Add(_user);
+                            App.Current.Dispatcher.Invoke((Action)delegate
+                            {
+                                _connectedUsers.Add(_user);
+                            });
                         }
 
                         OnPropertyChanged("ConnectedUsers");
@@ -114,7 +168,11 @@ namespace Chat_GUI.ViewModels
                         {
                             lock (_lock)
                             {
-                                _log.Add("Server has been stopped!");
+                                App.Current.Dispatcher.Invoke((Action)delegate
+                                {
+                                    _log.Add("Server has been stopped!");
+                                });
+
                                 OnPropertyChanged("Log");
                             }
                             _connected = false;
@@ -125,7 +183,7 @@ namespace Chat_GUI.ViewModels
             catch
             {
                 _connected = false;
-                return;
+                OnPropertyChanged("Connected");
             }
 
         }
@@ -134,7 +192,7 @@ namespace Chat_GUI.ViewModels
             BinaryWriter writer = new BinaryWriter(_connection.GetStream());
             try
             {
-                writer.Write(Settings.Nickname + ": " + msg);
+                writer.Write(Username + ": " + msg);
             }
             catch
             {
@@ -142,9 +200,13 @@ namespace Chat_GUI.ViewModels
             }
 
         }
-        public void Work(string ip, int port)
+        public void Work()
         {
-            new Thread(ReceiveMessages);
+            (new Thread(ReceiveMessages)).Start();
+        }
+        public bool OpenInNewTab
+        {
+            get; set;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

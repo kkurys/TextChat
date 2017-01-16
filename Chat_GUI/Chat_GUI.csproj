@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ConnectedUser">
+      <HintPath>..\..\ConnectedUser\ConnectedUser\bin\Debug\ConnectedUser.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -55,12 +58,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BookmarksWindow.xaml.cs">
+      <DependentUpon>BookmarksWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Custom\Commands.cs" />
     <Compile Include="ConnectionWindow.xaml.cs">
       <DependentUpon>ConnectionWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Bookmark.cs" />
+    <Compile Include="ViewModels\BookmarksViewModel.cs" />
     <Compile Include="ViewModels\ConnectionDataViewModel.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Page Include="BookmarksWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ConnectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -79,7 +92,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\Connection.cs" />
     <Compile Include="Models\ConnectedUser.cs" />
     <Compile Include="Models\ClientServerData.cs" />
     <Compile Include="Models\IConnection.cs" />

@@ -8,6 +8,7 @@ namespace Chat_GUI.Models
     {
         #region fields
         private TcpClient _tcpClient;
+        private string _username;
         #endregion
         #region constructors
         public Connection()
@@ -16,7 +17,7 @@ namespace Chat_GUI.Models
         }
         #endregion
         #region connection methods
-        public void Connect(string ip, int port)
+        public void Connect(string ip, int port, string username)
         {
             var _result = _tcpClient.BeginConnect(ip, port, null, null);
 
@@ -28,12 +29,13 @@ namespace Chat_GUI.Models
             }
 
             BinaryWriter writer = new BinaryWriter(_tcpClient.GetStream());
-
-            writer.Write(Settings.Nickname);
+            _username = username;
+            writer.Write(username);
         }
 
         public void Disconnect()
         {
+            GetStream().Close();
             _tcpClient.Close();
         }
         #endregion
@@ -50,7 +52,13 @@ namespace Chat_GUI.Models
             }
         }
 
-
+        public string Username
+        {
+            get
+            {
+                return _username;
+            }
+        }
         #endregion
     }
 }

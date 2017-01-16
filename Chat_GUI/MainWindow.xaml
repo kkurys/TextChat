@@ -6,57 +6,122 @@
         xmlns:local="clr-namespace:Chat_GUI"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800">
-    <Grid>
+    <Window.CommandBindings>
+        <CommandBinding Command="local:Commands.Send" Executed="Send_Executed" CanExecute="Send_CanExecute" />
+        <CommandBinding Command="local:Commands.Connect" Executed="Connect_Executed" CanExecute="Connect_CanExecute" />
+        <CommandBinding Command="local:Commands.Reconnect" Executed="Reconnect_Executed" CanExecute="Reconnect_CanExecute" />
+        <CommandBinding Command="local:Commands.Disconnect" Executed="Disconnect_Executed" CanExecute="Disconnect_CanExecute" />
+        <CommandBinding Command="local:Commands.DisconnectAll" Executed="DisconnectAll_Executed" CanExecute="DisconnectAll_CanExecute" />
+        <CommandBinding Command="local:Commands.Close" Executed="Close_Executed" CanExecute="Close_CanExecute" />
+    </Window.CommandBindings>
+    <Window.Resources>
+        <Style TargetType="MenuItem">
+            <Setter Property="CommandTarget">
+                <Setter.Value>
+                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}"
+                             Path="(ContextMenu.PlacementTarget)" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <ContextMenu x:Key="tabMenu">
+            <MenuItem Header="Ponów" Command="local:Commands.Reconnect" />
+            <MenuItem Header="Rozłącz" Command="local:Commands.Disconnect" />
+            <Separator></Separator>
+            <MenuItem Header="Zamknij" Command="local:Commands.Close" />
+        </ContextMenu>
+        <Style TargetType="TabItem">
+            <Setter Property="ContextMenu" Value="{StaticResource tabMenu}" />
+        </Style>
+    </Window.Resources>
+    <Grid Name="gridMain">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="3*"></RowDefinition>
-            <RowDefinition Height="5"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="5*"></RowDefinition>
+            <RowDefinition Height="4"></RowDefinition>
+            <RowDefinition Height="2*"></RowDefinition>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" IsMainMenu="True">
             <MenuItem Header="Połączenie">
                 <MenuItem Header="_Połącz" Click="OpenConnectionWindow"></MenuItem>
-                <MenuItem Header="_Rozłącz"></MenuItem>
+                <MenuItem Header="_Odłącz od bieżącego" Command="local:Commands.Disconnect"></MenuItem>
+                <MenuItem Header="_Odłącz od wszystkich" Command="local:Commands.DisconnectAll"></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="_Wyjdź" Command="local:Commands.Disconnect"></MenuItem>
             </MenuItem>
-            <MenuItem Header="Zakładki">
-                <MenuItem Header="Dodaj do zakładek"></MenuItem>
-                <MenuItem Header="Zarządzaj zakładkami"></MenuItem>
+            <MenuItem Header="Zakładki" Name="miBookmarks" >
+                <MenuItem.Resources>
+                    <CollectionViewSource x:Key="BookmarkCollection" Source="{Binding Bookmarks}"/>
+                </MenuItem.Resources>
+                <MenuItem.ItemsSource>
+                    <CompositeCollection>
+                        <MenuItem Header="Dodaj do zakładek"></MenuItem>
+                        <MenuItem Header="Zarządzaj zakładkami" Click="OpenBookmarksWindow"></MenuItem>
+                        <Separator></Separator>
+                        <CollectionContainer Collection="{Binding Source={StaticResource BookmarkCollection}}" />
+                    </CompositeCollection>
+                </MenuItem.ItemsSource>
+                <MenuItem.ItemContainerStyle>
+                    <Style>
+                        <Setter Property="MenuItem.Header" Value="{Binding Name}" />
+                        <Setter Property="MenuItem.Command" Value="local:Commands.Connect" />
+                        <Setter Property="MenuItem.CommandParameter" Value="{Binding}" />
+                    </Style>
+                </MenuItem.ItemContainerStyle>
+            </MenuItem>
+            <MenuItem Header="Serwer">
+                <MenuItem Header="Uruchom"></MenuItem>
+                <MenuItem Header="Zatrzymaj"></MenuItem>
+                <MenuItem Header="Ustawienia"></MenuItem>
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*" MinWidth="100px"></ColumnDefinition>
-                <ColumnDefinition Width="5"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <ListView Grid.Row="0" Name="lv_chat"></ListView>
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0">Wyślij</Button>
-                    <TextBox Grid.Column="1"></TextBox>
-                </Grid>
-            </Grid>
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"></GridSplitter>
-            <Grid Grid.Column="2">
-                <Label>Użytkownicy</Label>
-                <ListView Name="lv_users"></ListView>
-            </Grid>
-        </Grid>
+        <TabControl Grid.Row="1" TabStripPlacement="Bottom" Name="tcMain" ItemsSource="{Binding ConnectionsTabs}" SelectedIndex="{Binding ActiveConnectionTab}" Margin="0, 0, 0, 10" >
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Ip}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <Grid Name="gridMain">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="3*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" MinWidth="100px"></ColumnDefinition>
+                                <ColumnDefinition Width="5"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <ListView Grid.Row="0" Name="lv_chat" ItemsSource="{Binding ChatHistory}"></ListView>
+                                <Grid Grid.Row="1">
+
+                                </Grid>
+                            </Grid>
+                            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"></GridSplitter>
+                            <Grid Grid.Column="2">
+                                <Label>Użytkownicy</Label>
+                                <ListView Name="lv_users" ItemsSource="{Binding ConnectedUsers}"></ListView>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
         <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext"></GridSplitter>
         <Grid Grid.Row="3">
-            <TabControl TabStripPlacement="Bottom">
-                <TabItem Header="WTF">
-                    
-                </TabItem>
-            </TabControl>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Command="local:Commands.Send" CommandParameter="{Binding Text, ElementName=tbMsg}" >Wyślij</Button>
+            <TextBox Grid.Column="1" Name="tbMsg" KeyDown="Keyboard_KeyDown"></TextBox>
         </Grid>
     </Grid>
+
+    
 </Window>
