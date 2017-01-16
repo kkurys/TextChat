@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Chat_GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800">
+        Title="MainWindow" Height="600" Width="800" Closing="Window_Closing">
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.Send" Executed="Send_Executed" CanExecute="Send_CanExecute" />
         <CommandBinding Command="local:Commands.Connect" Executed="Connect_Executed" CanExecute="Connect_CanExecute" />
@@ -14,6 +14,8 @@
         <CommandBinding Command="local:Commands.DisconnectAll" Executed="DisconnectAll_Executed" CanExecute="DisconnectAll_CanExecute" />
         <CommandBinding Command="local:Commands.Close" Executed="Close_Executed" CanExecute="Close_CanExecute" />
         <CommandBinding Command="local:Commands.Bookmark" Executed="Bookmark_Executed" CanExecute="Bookmark_CanExecute" />
+        <CommandBinding Command="local:Commands.StartServer" Executed="StartServer_Executed" CanExecute="StartServer_CanExecute" />
+        <CommandBinding Command="local:Commands.StopServer" Executed="StopServer_Executed" CanExecute="StopServer_CanExecute" />
     </Window.CommandBindings>
     <Window.Resources>
         <Style TargetType="MenuItem">
@@ -70,8 +72,8 @@
                 </MenuItem.ItemContainerStyle>
             </MenuItem>
             <MenuItem Header="Serwer">
-                <MenuItem Header="Uruchom"></MenuItem>
-                <MenuItem Header="Zatrzymaj"></MenuItem>
+                <MenuItem Header="Uruchom" Command="local:Commands.StartServer"></MenuItem>
+                <MenuItem Header="Zatrzymaj" Command="local:Commands.StopServer"></MenuItem>
                 <MenuItem Header="Ustawienia"></MenuItem>
             </MenuItem>
         </Menu>

@@ -14,25 +14,27 @@ namespace Chat_GUI.Models
         #region fields
         private TcpListener _listener;
         private List<ClientServerData> _connectedClients;
-        private List<ConnectedUser> _clientsToBroadcast;
+        private List<ConnectedUser.ConnectedUser> _clientsToBroadcast;
         #endregion
         #region constructors
         public Server()
         {
             _listener = new TcpListener(GetLocalIPAddress(), Settings.HostedServerPort);
             _connectedClients = new List<ClientServerData>();
-            _clientsToBroadcast = new List<ConnectedUser>();
+            _clientsToBroadcast = new List<ConnectedUser.ConnectedUser>();
 
         }
         #endregion
         public void Start()
         {
+            _listener = new TcpListener(GetLocalIPAddress(), Settings.HostedServerPort);
             _listener.Start();
             new Thread(Listen).Start();
         }
 
         public void Stop()
         {
+            _listener.Server.Close();
             _listener.Stop();
             BinaryFormatter writer = new BinaryFormatter();
             foreach (ClientServerData client in _connectedClients)
@@ -83,7 +85,7 @@ namespace Chat_GUI.Models
                 ClientServerData cl = new ClientServerData(nick, client, _connectedClients.Count, clientIp);
 
                 _connectedClients.Add(cl);
-                _clientsToBroadcast.Add(new ConnectedUser(cl.NickName, cl.Id));
+                _clientsToBroadcast.Add(new ConnectedUser.ConnectedUser(cl.NickName, cl.Id));
                 OnNewMessageArrived();
                 BroadcastClients();
                 new Thread(() => Broadcast(cl)).Start();
@@ -159,7 +161,7 @@ namespace Chat_GUI.Models
                 NewMessageArrived(this, EventArgs.Empty);
             }
         }
-        public List<ConnectedUser> GetConnectedClients()
+        public List<ConnectedUser.ConnectedUser> GetConnectedClients()
         {
             return _clientsToBroadcast;
         }

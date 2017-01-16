@@ -8,6 +8,6 @@ namespace Chat_GUI.Models
         void Start();
         void Stop();
         TcpClient AcceptTcpClient();
-        List<ConnectedUser> GetConnectedClients();
+        List<ConnectedUser.ConnectedUser> GetConnectedClients();
     }
 }

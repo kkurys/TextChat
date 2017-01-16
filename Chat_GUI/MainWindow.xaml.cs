@@ -35,14 +35,18 @@ namespace Chat_GUI
             _connectionWindow.ShowDialog();
             if (_connectionWindow.DialogResult.Value)
             {
-                SaveLastConnectionToFile(_connectionData);
                 var _connection = new ConnectionViewModel();
+                _connectionData = _connectionWindow.GetConnectionData();
                 _connection.Connect(_connectionData.Ip, _connectionData.Port, _connectionData.Username);
+                _connection.OpenInNewTab = _connectionData.OpenInTab;
+
+                SaveLastConnectionToFile(_connectionData);
+
                 if (_connection.Connected)
                 {
                     _connection.Work();
                 }
-                _connection.OpenInNewTab = _connectionData.OpenInTab;
+               
                 _mainViewModel.AddConnection(_connection);
             }
         }
@@ -291,6 +295,36 @@ namespace Chat_GUI
             _mainViewModel.RemoveConnection(ti.Header as ConnectionViewModel);
             tcMain.SelectedIndex = 0;
         }
+        private void StartServer_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (!_mainViewModel.ServerRunning && Settings.HostedServerPort != -1)
+            {
+                e.CanExecute = true;
+            }
+            else
+            {
+                e.CanExecute = false;
+            }
+        }
+        private void StartServer_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            _mainViewModel.StartServer();
+        }
+        private void StopServer_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (_mainViewModel.ServerRunning)
+            {
+                e.CanExecute = true;
+            }
+            else
+            {
+                e.CanExecute = false;
+            }
+        }
+        private void StopServer_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            _mainViewModel.StopServer();
+        }
         #endregion
         private void Keyboard_KeyDown(object sender, KeyEventArgs e)
         {
@@ -311,6 +345,16 @@ namespace Chat_GUI
         private void Close(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (_mainViewModel.ServerRunning)
+            {
+                _mainViewModel.StopServer();
+            }
+            _mainViewModel.DisconnectAll();
+
         }
     }
 }

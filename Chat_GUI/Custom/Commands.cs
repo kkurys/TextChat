@@ -13,5 +13,7 @@ namespace Chat_GUI
         public static readonly RoutedUICommand RemoveBookmark = new RoutedUICommand("RemoveBookmark", "RemoveBookmark", typeof(Commands));
         public static readonly RoutedUICommand ConfirmChanges = new RoutedUICommand("ConfirmChanges", "ConfirmChanges", typeof(Commands));
         public static readonly RoutedUICommand Bookmark = new RoutedUICommand("Bookmark", "Bookmark", typeof(Commands));
+        public static readonly RoutedUICommand StartServer = new RoutedUICommand("StartServer", "StartServer", typeof(Commands));
+        public static readonly RoutedUICommand StopServer = new RoutedUICommand("StopServer", "StopServer", typeof(Commands));
     }
 }

@@ -94,7 +94,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Connection.cs" />
-    <Compile Include="Models\ConnectedUser.cs" />
     <Compile Include="Models\ClientServerData.cs" />
     <Compile Include="Models\IConnection.cs" />
     <Compile Include="Models\IServer.cs" />
