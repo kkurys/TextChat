@@ -59,6 +59,9 @@ namespace Chat_GUI
 
             if (_bookmarksWindow.ChangesConfirmed)
             {
+                _bookmarksViewModel.Bookmarks = _bookmarksWindow.GetBookmarks().Bookmarks;
+                miBookmarks.DataContext = null;
+                miBookmarks.DataContext = _bookmarksViewModel;
                 SaveBookmarksToFile();
             }
             else
@@ -138,7 +141,7 @@ namespace Chat_GUI
         #region commands
         private void Send_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (e.Parameter != null && e.Parameter.ToString() != "" && _mainViewModel.ActiveConnectionTabHasConnection())
+            if (e.Parameter != null && e.Parameter.ToString() != "" && _mainViewModel.ActiveConnectionTabHasConnection)
             {
                 e.CanExecute = true;
             }
@@ -250,7 +253,26 @@ namespace Chat_GUI
         }
         private void DisconnectAll_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-
+            _mainViewModel.DisconnectAll();
+        }
+        private void Bookmark_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (_mainViewModel.ActiveConnectionTabHasConnection)
+            {
+                e.CanExecute = true;
+            }
+            else
+            {
+                e.CanExecute = false;
+            }
+        }
+        private void Bookmark_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var currConnection = _mainViewModel.ConnectionsTabs[_mainViewModel.ActiveConnectionTab];
+            var newBookmark = new BookmarkViewModel(currConnection.Ip, currConnection.Username, currConnection.Port);
+            var bookmarksWindow = new BookmarksWindow(_bookmarksViewModel, newBookmark);
+            bookmarksWindow.Closing += BookmarksWindow_Closing;
+            bookmarksWindow.Show();
         }
         private void Close_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -274,7 +296,7 @@ namespace Chat_GUI
         {
             if (e.Key == Key.Enter)
             {
-                if (_mainViewModel.ActiveConnectionTabHasConnection())
+                if (_mainViewModel.ActiveConnectionTabHasConnection)
                 {
                     if (tbMsg.Text != null)
                     {
@@ -284,6 +306,11 @@ namespace Chat_GUI
                 }
             }
 
+        }
+
+        private void Close(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

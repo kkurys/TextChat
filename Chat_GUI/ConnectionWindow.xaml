@@ -9,7 +9,7 @@
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.Connect" Executed="ConnectCommand_Executed" CanExecute="ConnectCommand_CanExecute" />
     </Window.CommandBindings>
-    <Grid Name="gridMain">
+    <Grid Name="gridMain" Validation.Error="ValidationError">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -36,9 +36,17 @@
                 <ColumnDefinition Width="2*"></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBox Name="tbServerAddress" Text="{Binding Ip, Mode=TwoWay}"></TextBox>
+            <TextBox Name="tbServerAddress">
+                <TextBox.Text>
+                    <Binding Path="Ip" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <local:ValidIPRule></local:ValidIPRule>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
             <Grid Grid.Column="1">
-                <TextBox Name="tbPort" Text="{Binding Port, Mode=TwoWay}"></TextBox>
+                <TextBox Name="tbPort" Text="{Binding Port, Mode=TwoWay, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </Grid>
         </Grid>
         <Grid Grid.Row="2">
@@ -61,7 +69,15 @@
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
-                <TextBox Name="tbUsername" Text="{Binding Username, Mode=TwoWay}"></TextBox>
+                <TextBox Name="tbUsername">
+                    <TextBox.Text>
+                        <Binding Path="Username" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <local:FieldNotEmptyRule></local:FieldNotEmptyRule>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
             </Grid>
         </Grid>
         <Grid Grid.Row="4">

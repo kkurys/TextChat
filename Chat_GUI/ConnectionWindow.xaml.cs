@@ -1,15 +1,29 @@
 ﻿using Chat_GUI.ViewModels;
-using System.Text.RegularExpressions;
+using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 namespace Chat_GUI
 {
     /// <summary>
     /// Interaction logic for ConnectionWindow.xaml
     /// </summary>
-    public partial class ConnectionWindow : Window
+    public partial class ConnectionWindow : Window, INotifyPropertyChanged
     {
         ConnectionDataViewModel _connectionData;
+        private bool _inputErrors;
+        public bool InputErrors
+        {
+            get
+            {
+                return _inputErrors;
+            }
+            set
+            {
+                _inputErrors = value;
+                OnPropertyChanged("InputErrors");
+            }
+        }
         public ConnectionWindow(ConnectionDataViewModel connectionData)
         {
             InitializeComponent();
@@ -24,10 +38,7 @@ namespace Chat_GUI
         #region commands
         private void ConnectCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            Regex ipRegex = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
-            int port;
-            bool result = int.TryParse(tbPort.Text, out port);
-            if (tbServerAddress.Text != "" && ipRegex.Match(tbServerAddress.Text).Success && result && tbUsername.Text != "")
+            if (!InputErrors)
             {
                 e.CanExecute = true;
             }
@@ -57,7 +68,38 @@ namespace Chat_GUI
             this.DialogResult = true;
             Close();
         }
-
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        private bool HasErrors(DependencyObject gridInfo)
+        {
+            foreach (object child in LogicalTreeHelper.GetChildren(gridInfo))
+            {
+                TextBox element = child as TextBox;
+                if (element == null)
+                {
+                    continue;
+                }
+                if (Validation.GetHasError(element) || HasErrors(element))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private void ValidationError(object sender, ValidationErrorEventArgs e)
+        {
+            if (e.Action == ValidationErrorEventAction.Added)
+            {
+                InputErrors = true;
+            }
+            else if (!HasErrors(gridMain))
+            {
+                InputErrors = false;
+            }
+        }
         #endregion
     }
 }

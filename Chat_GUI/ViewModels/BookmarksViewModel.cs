@@ -9,6 +9,12 @@ namespace Chat_GUI.ViewModels
     {
         private string _name, _ip, _nick;
         private int _port;
+        public BookmarkViewModel(string ip, string nick, int port)
+        {
+            Ip = ip;
+            Nick = nick;
+            Port = port;
+        }
         public BookmarkViewModel(Bookmark bookmark)
         {
             _name = bookmark.Name;
@@ -88,9 +94,21 @@ namespace Chat_GUI.ViewModels
     public class BookmarksViewModel
     {
         public ObservableCollection<BookmarkViewModel> Bookmarks { get; set; }
+        public BookmarksViewModel(BookmarksViewModel bvm)
+        {
+            Bookmarks = new ObservableCollection<BookmarkViewModel>(bvm.Bookmarks);
+        }
+        public BookmarksViewModel()
+        {
+
+        }
         public void AddNewBookmark()
         {
             Bookmarks.Add(new BookmarkViewModel("Nowa zakładka"));
+        }
+        public void AddBookmark(BookmarkViewModel bookmark)
+        {
+            Bookmarks.Add(bookmark);
         }
         public void RemoveBookmark(BookmarkViewModel bookmark)
         {

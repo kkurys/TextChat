@@ -65,6 +65,7 @@
     <Compile Include="ConnectionWindow.xaml.cs">
       <DependentUpon>ConnectionWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Custom\Validators.cs" />
     <Compile Include="Models\Bookmark.cs" />
     <Compile Include="ViewModels\BookmarksViewModel.cs" />
     <Compile Include="ViewModels\ConnectionDataViewModel.cs" />

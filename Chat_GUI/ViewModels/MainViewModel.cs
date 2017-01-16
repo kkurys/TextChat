@@ -53,12 +53,16 @@ namespace Chat_GUI.ViewModels
             {
                 _connectionsCount = value;
                 OnPropertyChanged("ConnectionsCount");
-                
+
             }
         }
-        public bool ActiveConnectionTabHasConnection()
+        public bool ActiveConnectionTabHasConnection
         {
-            return _connectionsTabs[ActiveConnectionTab].Connected;
+            get
+            {
+                return _connectionsTabs[ActiveConnectionTab].Connected;
+            }
+
         }
         public void DisconnectFromCurrent()
         {
@@ -67,6 +71,16 @@ namespace Chat_GUI.ViewModels
         public void ReconnectOnCurrent()
         {
             _connectionsTabs[ActiveConnectionTab].Reconnect();
+        }
+        public void DisconnectAll()
+        {
+            foreach (var connection in _connectionsTabs)
+            {
+                if (connection.Connected)
+                {
+                    connection.Disconnect();
+                }
+            }
         }
         public ObservableCollection<ConnectionViewModel> ConnectionsTabs
         {

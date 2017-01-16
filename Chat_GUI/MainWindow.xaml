@@ -13,6 +13,7 @@
         <CommandBinding Command="local:Commands.Disconnect" Executed="Disconnect_Executed" CanExecute="Disconnect_CanExecute" />
         <CommandBinding Command="local:Commands.DisconnectAll" Executed="DisconnectAll_Executed" CanExecute="DisconnectAll_CanExecute" />
         <CommandBinding Command="local:Commands.Close" Executed="Close_Executed" CanExecute="Close_CanExecute" />
+        <CommandBinding Command="local:Commands.Bookmark" Executed="Bookmark_Executed" CanExecute="Bookmark_CanExecute" />
     </Window.CommandBindings>
     <Window.Resources>
         <Style TargetType="MenuItem">
@@ -46,7 +47,7 @@
                 <MenuItem Header="_Odłącz od bieżącego" Command="local:Commands.Disconnect"></MenuItem>
                 <MenuItem Header="_Odłącz od wszystkich" Command="local:Commands.DisconnectAll"></MenuItem>
                 <Separator></Separator>
-                <MenuItem Header="_Wyjdź" Command="local:Commands.Disconnect"></MenuItem>
+                <MenuItem Header="_Wyjdź" Click="Close"></MenuItem>
             </MenuItem>
             <MenuItem Header="Zakładki" Name="miBookmarks" >
                 <MenuItem.Resources>
@@ -54,7 +55,7 @@
                 </MenuItem.Resources>
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
-                        <MenuItem Header="Dodaj do zakładek"></MenuItem>
+                        <MenuItem Header="Dodaj do zakładek" Command="local:Commands.Bookmark"></MenuItem>
                         <MenuItem Header="Zarządzaj zakładkami" Click="OpenBookmarksWindow"></MenuItem>
                         <Separator></Separator>
                         <CollectionContainer Collection="{Binding Source={StaticResource BookmarkCollection}}" />
