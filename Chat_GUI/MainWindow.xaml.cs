@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Chat_GUI
 {
@@ -180,10 +181,10 @@ namespace Chat_GUI
         {
             TabItem ti = e.OriginalSource as TabItem;
             var connection = ti.Header as ConnectionViewModel;
-            connection.ChatHistory.Add("Reconnecting..");
+            connection.ChatHistory.Add("Ponawiam połączenie..");
             if (connection.Reconnect())
             {
-                connection.ChatHistory.Add("Niby dziala..");
+                connection.ChatHistory.Add("Połączono");
             }
         }
         private void Connect_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -297,7 +298,7 @@ namespace Chat_GUI
         }
         private void StartServer_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (!_mainViewModel.ServerRunning && Settings.HostedServerPort != -1)
+            if (!_mainViewModel.ServerRunning)
             {
                 e.CanExecute = true;
             }
@@ -309,6 +310,8 @@ namespace Chat_GUI
         private void StartServer_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             _mainViewModel.StartServer();
+            lbStatus.Foreground = new SolidColorBrush(Colors.Green);
+            lbStatus.Content = "Włączony";
         }
         private void StopServer_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -324,6 +327,8 @@ namespace Chat_GUI
         private void StopServer_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             _mainViewModel.StopServer();
+            lbStatus.Foreground = new SolidColorBrush(Colors.Red);
+            lbStatus.Content = "Wyłączony";
         }
         #endregion
         private void Keyboard_KeyDown(object sender, KeyEventArgs e)

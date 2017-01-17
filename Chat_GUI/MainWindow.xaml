@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Chat_GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800" Closing="Window_Closing">
+        Title="Czat" Height="600" Width="800" Closing="Window_Closing" Background="#f4f7fc">
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.Send" Executed="Send_Executed" CanExecute="Send_CanExecute" />
         <CommandBinding Command="local:Commands.Connect" Executed="Connect_Executed" CanExecute="Connect_CanExecute" />
@@ -27,38 +27,138 @@
             </Setter>
         </Style>
         <ContextMenu x:Key="tabMenu">
-            <MenuItem Header="Ponów" Command="local:Commands.Reconnect" />
-            <MenuItem Header="Rozłącz" Command="local:Commands.Disconnect" />
+            <MenuItem Header="Ponów" Command="local:Commands.Reconnect" >
+                <MenuItem.Icon>
+                    <Image Source="Icons/connection.png"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Rozłącz" Command="local:Commands.Disconnect" >
+                <MenuItem.Icon>
+                    <Image Source="Icons/disconnect.png"/>
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator></Separator>
-            <MenuItem Header="Zamknij" Command="local:Commands.Close" />
+            <MenuItem Header="Zamknij" Command="local:Commands.Close" >
+                <MenuItem.Icon>
+                    <Image Source="Icons/close.png"/>
+                </MenuItem.Icon>
+            </MenuItem>
         </ContextMenu>
+
         <Style TargetType="TabItem">
             <Setter Property="ContextMenu" Value="{StaticResource tabMenu}" />
+        </Style>
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="#dbe8ff" />
+            <Setter Property="BorderBrush" Value="#dbe8ff" />
+        </Style>
+        <Style TargetType="GridSplitter">
+            <Setter Property="Background" Value="#cfdef7" />
+        </Style>
+        <Style TargetType="Menu">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Background" Value="#f4f7fc"/>
+        </Style>
+        <Style TargetType="GroupBox">
+            <Setter Property="Background" Value="#dbe8ff"/>
+            <Setter Property="BorderBrush" Value="#dbe8ff"/>
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style TargetType="Button" x:Key="IconButtonBlue">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#3361e0" />
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="1"  Padding="6 6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#dbe8ff"/>
+
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="White"/>
+                    <Setter Property="Foreground" Value="#bcbcbc" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ListView">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Connected}" Value="True">
+                    <Setter Property="Background" Value="#edf3ff"  />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Connected}" Value="False">
+                    <Setter Property="Background" Value="#f9f5f2"  />
+                </DataTrigger>
+            </Style.Triggers>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
+            
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#f9fafc" />
+            <Setter Property="Margin" Value="0, 0, 5, 0" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontFamily" Value="Serif" />
         </Style>
     </Window.Resources>
     <Grid Name="gridMain">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="5*"></RowDefinition>
-            <RowDefinition Height="4"></RowDefinition>
-            <RowDefinition Height="2*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" IsMainMenu="True">
             <MenuItem Header="Połączenie">
-                <MenuItem Header="_Połącz" Click="OpenConnectionWindow"></MenuItem>
-                <MenuItem Header="_Odłącz od bieżącego" Command="local:Commands.Disconnect"></MenuItem>
-                <MenuItem Header="_Odłącz od wszystkich" Command="local:Commands.DisconnectAll"></MenuItem>
+                <MenuItem Header="_Połącz" Click="OpenConnectionWindow">
+                    <MenuItem.Icon>
+                        <Image Source="Icons/connection.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Odłącz od bieżącego" Command="local:Commands.Disconnect">
+                    <MenuItem.Icon>
+                        <Image Source="Icons/disconnect.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Odłącz od wszystkich" Command="local:Commands.DisconnectAll">
+                    <MenuItem.Icon>
+                        <Image Source="Icons/disconnect.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator></Separator>
-                <MenuItem Header="_Wyjdź" Click="Close"></MenuItem>
+                <MenuItem Header="_Wyjdź" Click="Close">
+                    <MenuItem.Icon>
+                        <Image Source="Icons/close.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Zakładki" Name="miBookmarks" >
                 <MenuItem.Resources>
                     <CollectionViewSource x:Key="BookmarkCollection" Source="{Binding Bookmarks}"/>
+                    <Image x:Key="bookmark" Source="Icons/bookmark.png" />
                 </MenuItem.Resources>
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
-                        <MenuItem Header="Dodaj do zakładek" Command="local:Commands.Bookmark"></MenuItem>
-                        <MenuItem Header="Zarządzaj zakładkami" Click="OpenBookmarksWindow"></MenuItem>
+                        <MenuItem Header="Dodaj do zakładek" Command="local:Commands.Bookmark">
+                            <MenuItem.Icon>
+                                <Image Source="Icons/add.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Zarządzaj zakładkami" Click="OpenBookmarksWindow">
+                            <MenuItem.Icon>
+                                <Image Source="Icons/edit.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <Separator></Separator>
                         <CollectionContainer Collection="{Binding Source={StaticResource BookmarkCollection}}" />
                     </CompositeCollection>
@@ -72,65 +172,100 @@
                 </MenuItem.ItemContainerStyle>
             </MenuItem>
             <MenuItem Header="Serwer">
-                <MenuItem Header="Uruchom" Command="local:Commands.StartServer"></MenuItem>
-                <MenuItem Header="Zatrzymaj" Command="local:Commands.StopServer"></MenuItem>
-                <MenuItem Header="Ustawienia"></MenuItem>
+                <MenuItem Header="Uruchom" Command="local:Commands.StartServer">
+                    <MenuItem.Icon>
+                        <Image Source="Icons/connection.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Zatrzymaj" Command="local:Commands.StopServer">
+                    <MenuItem.Icon>
+                        <Image Source="Icons/disconnect.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
         </Menu>
-        <TabControl Grid.Row="1" TabStripPlacement="Bottom" Name="tcMain" ItemsSource="{Binding ConnectionsTabs}" SelectedIndex="{Binding ActiveConnectionTab}" Margin="0, 0, 0, 10" >
-            <TabControl.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Ip}" />
-                </DataTemplate>
-            </TabControl.ItemTemplate>
-            <TabControl.ContentTemplate>
-                <DataTemplate>
-                    <Grid Name="gridMain">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="3*"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*" MinWidth="100px"></ColumnDefinition>
-                                <ColumnDefinition Width="5"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0">
+        <GroupBox Grid.Row="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5*"></RowDefinition>
+                    <RowDefinition Height="4"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TabControl Grid.Row="0" Name="tcMain" ItemsSource="{Binding ConnectionsTabs}" SelectedIndex="{Binding ActiveConnectionTab}" Margin="0, 0, 0, 10" >
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Ip}" />
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <Grid Name="gridMain" >
                                 <Grid.RowDefinitions>
-                                    <RowDefinition></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="3*"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <ListView Grid.Row="0" Name="lv_chat" ItemsSource="{Binding ChatHistory}"></ListView>
-                                <Grid Grid.Row="1">
-
+                                <Grid Grid.Row="0" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3*" MinWidth="100px" ></ColumnDefinition>
+                                        <ColumnDefinition Width="5"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Margin="0, -3, 0, 3">Czat:</Label>
+                                        <ListView Grid.Row="1" Name="lv_chat" ItemsSource="{Binding ChatHistory}">     
+                                        </ListView>
+                                    </Grid>
+                                    <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"></GridSplitter>
+                                    <Grid Grid.Column="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Margin="0, -3, 0, 3">Użytkownicy</Label>
+                                        <ListView Grid.Row="1" Name="lv_users" ItemsSource="{Binding ConnectedUsers}">
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <EventSetter Event="MouseDoubleClick" Handler="ConnectedUser_MouseDoubleClick" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                        </ListView>
+                                    </Grid>
                                 </Grid>
                             </Grid>
-                            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"></GridSplitter>
-                            <Grid Grid.Column="2">
-                                <Label>Użytkownicy</Label>
-                                <ListView Name="lv_users" ItemsSource="{Binding ConnectedUsers}">
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <EventSetter Event="MouseDoubleClick" Handler="ConnectedUser_MouseDoubleClick" />
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                </ListView>
-                            </Grid>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+                <GridSplitter Grid.Row="1" Margin="0, 5, 0, 5" HorizontalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext"></GridSplitter>
+                <Grid Grid.Row="2" Grid.IsSharedSizeScope="True" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" ></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="Napisz wiadomość" Margin="0, -5, 0, 10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5*"></ColumnDefinition>
+                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Name="tbMsg" KeyDown="Keyboard_KeyDown"></TextBox>
+                            <Button Grid.Column="1" Command="local:Commands.Send" CommandParameter="{Binding Text, ElementName=tbMsg}" Style="{StaticResource IconButtonBlue}" >Wyślij</Button>
                         </Grid>
-                    </Grid>
-                </DataTemplate>
-            </TabControl.ContentTemplate>
-        </TabControl>
-        <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext"></GridSplitter>
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Command="local:Commands.Send" CommandParameter="{Binding Text, ElementName=tbMsg}" >Wyślij</Button>
-            <TextBox Grid.Column="1" Name="tbMsg" KeyDown="Keyboard_KeyDown"></TextBox>
+                    </GroupBox>
+
+                </Grid>
+            </Grid>
+        </GroupBox>
+        <Grid Grid.Row="2">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label>Serwer:</Label>
+                <Label Name="lbStatus" Foreground="Red">Wyłączony</Label>
+            </StackPanel>
         </Grid>
     </Grid>
 
-    
+
 </Window>

@@ -19,7 +19,7 @@ namespace Chat_GUI.Models
         #region constructors
         public Server()
         {
-            _listener = new TcpListener(GetLocalIPAddress(), Settings.HostedServerPort);
+            _listener = new TcpListener(GetLocalIPAddress(), 1024);
             _connectedClients = new List<ClientServerData>();
             _clientsToBroadcast = new List<ConnectedUser.ConnectedUser>();
 
@@ -27,7 +27,7 @@ namespace Chat_GUI.Models
         #endregion
         public void Start()
         {
-            _listener = new TcpListener(GetLocalIPAddress(), Settings.HostedServerPort);
+            _listener = new TcpListener(GetLocalIPAddress(), 1024);
             _listener.Start();
             new Thread(Listen).Start();
         }

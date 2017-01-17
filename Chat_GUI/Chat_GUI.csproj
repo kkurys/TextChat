@@ -107,7 +107,6 @@
     <Compile Include="Models\IConnection.cs" />
     <Compile Include="Models\IServer.cs" />
     <Compile Include="Models\Server.cs" />
-    <Compile Include="Models\Settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -134,7 +133,24 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Icons\connection.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\disconnect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\bookmark.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

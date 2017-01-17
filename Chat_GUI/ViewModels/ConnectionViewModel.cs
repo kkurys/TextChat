@@ -54,6 +54,11 @@ namespace Chat_GUI.ViewModels
             {
                 return _connected;
             }
+            set
+            {
+                _connected = value;
+                OnPropertyChanged("Connected");
+            }
         }
         public ObservableCollection<string> ChatHistory
         {
@@ -104,18 +109,15 @@ namespace Chat_GUI.ViewModels
                 _chatHistory.Add("Połączono z: " + ip + " jako " + username + "!");
                 BinaryFormatter formatter = new BinaryFormatter();
                 myId = int.Parse(formatter.Deserialize(_connection.GetStream()).ToString());
-                _connected = true;
-                OnPropertyChanged("Log");
-                OnPropertyChanged("Connected");
+                Connected = true;
                 return true;
             }
 
             catch
             {
                 _chatHistory.Add("Próba połączenia z: " + ip + " nie powiodła się!");
-                _connected = false;
+                Connected = false;
                 OnPropertyChanged("Log");
-                OnPropertyChanged("Connected");
                 return false;
             }
         }
@@ -123,57 +125,36 @@ namespace Chat_GUI.ViewModels
         {
             try
             {
-                _log.Add("Próba połączenia z: " + Ip + "...");
+                _chatHistory.Add("Próba połączenia z: " + Ip + "...");
                 _connection = new Connection();
                 _connection.Connect(Ip, Port, Username);
-                _log.Add("Połączono z: " + Ip + "!");
-                _connected = true;
+                _chatHistory.Add("Połączono z: " + Ip + "!");
+                Connected = true;
                 OnPropertyChanged("Log");
-                OnPropertyChanged("Connected");
                 Work();
                 return true;
             }
 
             catch
             {
-                _log.Add("Próba połączenia z: " + Ip + " nie powiodła się!");
-                _connected = false;
+                _chatHistory.Add("Próba połączenia z: " + Ip + " nie powiodła się!");
+                Connected = false;
                 OnPropertyChanged("Log");
                 OnPropertyChanged("Connected");
                 return false;
             }
         }
 
-        internal void SendPrivateMessage(int id, string msg)
-        {
-            try
-            {
-                PrivateMessage pm = new PrivateMessage();
-                pm.UserIDTo = id;
-                pm.Content = msg;
-                BinaryFormatter writer = new BinaryFormatter();
-                try
-                {
-                    writer.Serialize(_connection.GetStream(), pm);
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-            catch
-            {
-                throw;
-            }
 
-        }
 
         public void Disconnect()
         {
             if (_connected)
             {
                 _connection.Disconnect();
-                OnPropertyChanged("Connected");
+                Connected = false;
+                ConnectedUsers.Clear();
+                ChatHistory.Add("Rozłączono");
             }
 
         }
@@ -293,9 +274,17 @@ namespace Chat_GUI.ViewModels
                                 if (user == null) continue;
                                 var newPrivate = new PrivateConversationViewModel(user, this);
                                 newPrivate.IsActive = true;
+                                conv = newPrivate;
+
+                                lock (_lock)
+                                {
+                                    _conversations.Add(conv);
+                                }
+
                             }
                             App.Current.Dispatcher.Invoke((Action)delegate
                             {
+                                //  PrivateConversations.Add(conv);
                                 conv.Add(GetUserById(_msg.UserIDFrom).Nickname + ": " + _msg.Content);
                             });
                         }
@@ -305,15 +294,16 @@ namespace Chat_GUI.ViewModels
             }
             catch
             {
-              //  _connected = false;
+                //  _connected = false;
+                throw;
                 OnPropertyChanged("Connected");
             }
 
         }
         public void AddConversation(ConnectedUser.ConnectedUser _targetUser)
         {
-            // if (_targetUser.Id == myId) return;
             _privateConvs.Add(new PrivateConversationViewModel(_targetUser, this));
+            _conversations.Add(_privateConvs[0]);
             if (_privateWindow == null)
             {
                 _privateWindow = new PrivateConversationsWindow(_privateConvs);
@@ -322,7 +312,29 @@ namespace Chat_GUI.ViewModels
         }
 
 
+        internal void SendPrivateMessage(int id, string msg)
+        {
+            try
+            {
+                PrivateMessage pm = new PrivateMessage();
+                pm.UserIDTo = id;
+                pm.Content = msg;
+                BinaryFormatter writer = new BinaryFormatter();
+                try
+                {
+                    writer.Serialize(_connection.GetStream(), pm);
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+            catch
+            {
+                throw;
+            }
 
+        }
         public void SendMessage(string msg)
         {
             BinaryFormatter writer = new BinaryFormatter();
