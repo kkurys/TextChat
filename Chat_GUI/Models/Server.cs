@@ -19,7 +19,7 @@ namespace Chat_GUI.Models
         #region constructors
         public Server()
         {
-            _listener = new TcpListener(GetLocalIPAddress(), Settings.HostedServerPort);
+            _listener = new TcpListener(GetLocalIPAddress(), 1024);
             _connectedClients = new List<ClientServerData>();
             _clientsToBroadcast = new List<ConnectedUser.ConnectedUser>();
 
@@ -27,7 +27,7 @@ namespace Chat_GUI.Models
         #endregion
         public void Start()
         {
-            _listener = new TcpListener(GetLocalIPAddress(), Settings.HostedServerPort);
+            _listener = new TcpListener(GetLocalIPAddress(), 1024);
             _listener.Start();
             new Thread(Listen).Start();
         }
@@ -70,6 +70,7 @@ namespace Chat_GUI.Models
         {
             TcpClient client;
             BinaryReader reader = null;
+            int id = 0;
             while (true)
             {
                 client = AcceptTcpClient();
@@ -82,8 +83,10 @@ namespace Chat_GUI.Models
                 string nick = reader.ReadString();
                 string clientIp = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
 
-                ClientServerData cl = new ClientServerData(nick, client, _connectedClients.Count, clientIp);
-
+                ClientServerData cl = new ClientServerData(nick, client, id, clientIp);
+                id++;
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(client.GetStream(), cl.Id);
                 _connectedClients.Add(cl);
                 _clientsToBroadcast.Add(new ConnectedUser.ConnectedUser(cl.NickName, cl.Id));
                 OnNewMessageArrived();
@@ -93,17 +96,16 @@ namespace Chat_GUI.Models
         }
         private void Broadcast(ClientServerData client)
         {
-            BinaryReader reader = new BinaryReader(client.GetStream());
+            BinaryFormatter reader = new BinaryFormatter();
             while (true)
             {
                 try
                 {
-                    var _msg = reader.ReadString();
+                    object _msg = reader.Deserialize(client.GetStream());
                     if (_msg is string)
                     {
                         string msg = _msg as string;
 
-                        OnNewMessageArrived();
                         BinaryFormatter writer = new BinaryFormatter();
                         foreach (ClientServerData cl in _connectedClients)
                         {
@@ -111,7 +113,20 @@ namespace Chat_GUI.Models
                         }
                         continue;
                     }
-
+                    else if (_msg is PrivateMessage)
+                    {
+                        PrivateMessage msg = _msg as PrivateMessage;
+                        msg.UserIDFrom = client.Id;
+                        BinaryFormatter writer = new BinaryFormatter();
+                        foreach (ClientServerData cl in _connectedClients)
+                        {
+                            if (cl.Id == msg.UserIDTo || cl.Id == msg.UserIDFrom)
+                            {
+                                writer.Serialize(cl.GetStream(), msg);
+                            }
+                        }
+                        continue;
+                    }
                 }
                 catch
                 {
@@ -138,17 +153,24 @@ namespace Chat_GUI.Models
         private void BroadcastClients()
         {
             BinaryFormatter bin = new BinaryFormatter();
-            foreach (ClientServerData cl in _connectedClients)
+            try
             {
-                try
+                foreach (ClientServerData cl in _connectedClients)
                 {
-                    NetworkStream stream = cl.GetStream();
-                    bin.Serialize(stream, _clientsToBroadcast);
+                    try
+                    {
+                        NetworkStream stream = cl.GetStream();
+                        bin.Serialize(stream, _clientsToBroadcast);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+            }
+            catch
+            {
+
             }
         }
         public delegate void NewMessageArrivedEventHandler(object sender, EventArgs e);

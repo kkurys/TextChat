@@ -5,11 +5,59 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Chat_GUI"
         mc:Ignorable="d"
-        Title="BookmarksWindow" Height="350" Width="400">
+        Title="Zarządzanie zakładkami" Height="350" MinHeight="300" MinWidth="300" Width="400">
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.RemoveBookmark" CanExecute="RemoveBookmark_CanExecute" Executed="RemoveBookmark_Executed" />
         <CommandBinding Command="local:Commands.ConfirmChanges" CanExecute="ConfirmChanges_CanExecute" Executed="ConfirmChanges_Executed" />
     </Window.CommandBindings>
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="IconButtonBlue">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#3361e0" />
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="1"  Padding="6 6">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#dbe8ff"/>
+
+                <Setter Property="Foreground" Value="White" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="Foreground" Value="#bcbcbc" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="ListView">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Path=Connected}" Value="True">
+                <Setter Property="Background" Value="#edf3ff"  />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Path=Connected}" Value="False">
+                <Setter Property="Background" Value="#f9f5f2"  />
+            </DataTrigger>
+        </Style.Triggers>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
+    </Style>
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="#f9fafc" />
+        <Setter Property="Margin" Value="0, 0, 5, 0" />
+    </Style>
+    <Style TargetType="Label">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontFamily" Value="Serif" />
+    </Style>
+    </Window.Resources>
     <Grid Margin="10" Name="gridMain" Validation.Error="ValidationError">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="49*"/>
@@ -27,19 +75,19 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
-                <Button Content="Dodaj zakładkę" Margin="0, 0, 10, 0" Click="AddNewBookmark"></Button>
+                <Button Style="{StaticResource IconButtonBlue}" Content="Dodaj zakładkę" Margin="0, 0, 10, 0" Click="AddNewBookmark"></Button>
             </Grid>
             <Grid Grid.Column="1">
-                <Button Content="Usuń zakładkę" Command="local:Commands.RemoveBookmark"></Button>
+                <Button Style="{StaticResource IconButtonBlue}" Content="Usuń zakładkę" Command="local:Commands.RemoveBookmark"></Button>
             </Grid>
         </Grid>
         <Grid Grid.Row="1" Grid.ColumnSpan="2">
             <ListView HorizontalContentAlignment="Left" Margin="0, 10, 0, 10" ItemsSource="{Binding Bookmarks}" Name="lvBookmarks">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Nazwa" Width="100" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="Nazwa" Width="150" DisplayMemberBinding="{Binding Name}"/>
 
-                        <GridViewColumn Header="Adres" Width="100" DisplayMemberBinding="{Binding Ip}"/>
+                        <GridViewColumn Header="Adres" Width="200" DisplayMemberBinding="{Binding Ip}"/>
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -57,7 +105,7 @@
             <Grid Grid.Row="0" >
                 <Label>Nazwa</Label>
             </Grid>
-            <Grid Grid.Row="0" Grid.Column="1">
+            <Grid Grid.Row="0" Grid.Column="1" Margin="0, 0, 0, 10">
                 <TextBox Name="tbName">
                     <TextBox.Text>
                         <Binding Path="SelectedItem.Name" ElementName="lvBookmarks" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
@@ -68,10 +116,10 @@
                     </TextBox.Text>
                 </TextBox>
             </Grid>
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1"  Margin="0, 0, 0, 10">
                 <Label>Adres</Label>
             </Grid>
-            <Grid Grid.Row="1" Grid.Column="1">
+            <Grid Grid.Row="1" Grid.Column="1" Margin="0, 0, 0, 10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -86,8 +134,8 @@
                         </Binding>
                     </TextBox.Text>
                 </TextBox>
-                <Label Grid.Column="1" Content="Port"></Label>
-                <TextBox Grid.Column="2" Text="{Binding SelectedItem.Port, ElementName=lvBookmarks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"></TextBox>
+                <Label Grid.Column="1" Content="Port"  Margin="0, 0, 0, 10"></Label>
+                <TextBox Grid.Column="2"  Margin="0, 0, 0, 10" Text="{Binding SelectedItem.Port, ElementName=lvBookmarks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"></TextBox>
             </Grid>
             <Grid Grid.Row="2">
                 <Label>Nick</Label>
@@ -104,10 +152,10 @@
                 </TextBox>
             </Grid>
         </Grid>
-        <Grid Grid.Row="3" Grid.ColumnSpan="2">
+        <Grid Grid.Row="3" Grid.ColumnSpan="2" Margin="0, 10, 10, 0">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <Button Margin="0, 0, 10, 0" Padding="10, 2, 10, 2" Click="Cancel">Anuluj</Button>
-                <Button Name="btAccept" Margin="0, 0, 10, 0" Padding="10, 2, 10, 2" Command="local:Commands.ConfirmChanges">Zastosuj</Button>
+                <Button Style="{StaticResource IconButtonBlue}" Margin="0, 0, 10, 0" Padding="10, 2, 10, 2" Click="Cancel">Anuluj</Button>
+                <Button Style="{StaticResource IconButtonBlue}" Name="btAccept" Margin="0, 0, 10, 0" Padding="10, 2, 10, 2" Command="local:Commands.ConfirmChanges">Zastosuj</Button>
             </StackPanel>
         </Grid>
     </Grid>

@@ -5,11 +5,60 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Chat_GUI"
         mc:Ignorable="d"
-        Title="ConnectionWindow" Height="180" Width="400">
+        Title="Połącz się" Height="200" Width="420" ResizeMode="NoResize">
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.Connect" Executed="ConnectCommand_Executed" CanExecute="ConnectCommand_CanExecute" />
     </Window.CommandBindings>
-    <Grid Name="gridMain" Validation.Error="ValidationError">
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="IconButtonBlue">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#3361e0" />
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="1"  Padding="6 6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#dbe8ff"/>
+
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="White"/>
+                    <Setter Property="Foreground" Value="#bcbcbc" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ListView">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Connected}" Value="True">
+                    <Setter Property="Background" Value="#edf3ff"  />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Connected}" Value="False">
+                    <Setter Property="Background" Value="#f9f5f2"  />
+                </DataTrigger>
+            </Style.Triggers>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
+
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#f9fafc" />
+            <Setter Property="Margin" Value="0, 0, 5, 0" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontFamily" Value="Serif" />
+        </Style>
+    </Window.Resources>
+    <Grid Name="gridMain" Validation.Error="ValidationError" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -81,10 +130,10 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="4">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0, 3, 0, 0">
-                <Button Padding="20, 3" Margin="0, 0, 10, 0" Command="local:Commands.Connect">Połącz</Button>
-                <Button Padding="20, 3" Margin="0, 0, 10, 0" Command="local:Commands.Connect" CommandParameter="1">Połącz w nowej zakładce</Button>
-                <Button Padding="20, 3" Margin="0, 0, 10, 0" IsCancel="True">Anuluj</Button>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0, 10, 0, 0">
+                <Button Style="{StaticResource IconButtonBlue}" Padding="20, 3" Margin="0, 0, 10, 0" Command="local:Commands.Connect">Połącz</Button>
+                <Button Style="{StaticResource IconButtonBlue}" Padding="20, 3" Margin="0, 0, 10, 0" Command="local:Commands.Connect" CommandParameter="1">Połącz w nowej zakładce</Button>
+                <Button Style="{StaticResource IconButtonBlue}" Padding="20, 3" Margin="0, 0, 10, 0" IsCancel="True">Anuluj</Button>
             </StackPanel>
         </Grid>
     </Grid>

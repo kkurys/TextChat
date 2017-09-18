@@ -67,6 +67,11 @@
     </Compile>
     <Compile Include="Custom\Validators.cs" />
     <Compile Include="Models\Bookmark.cs" />
+    <Compile Include="ViewModels\PrivateConversationViewModels.cs" />
+    <Compile Include="Models\PrivateMessage.cs" />
+    <Compile Include="PrivateConversationsWindow.xaml.cs">
+      <DependentUpon>PrivateConversationsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\BookmarksViewModel.cs" />
     <Compile Include="ViewModels\ConnectionDataViewModel.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
@@ -91,6 +96,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PrivateConversationsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Connection.cs" />
@@ -98,7 +107,6 @@
     <Compile Include="Models\IConnection.cs" />
     <Compile Include="Models\IServer.cs" />
     <Compile Include="Models\Server.cs" />
-    <Compile Include="Models\Settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -125,7 +133,24 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Icons\connection.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\disconnect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\bookmark.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+
 namespace Chat_GUI.ViewModels
 {
     public class ConnectionViewModel : INotifyPropertyChanged
@@ -16,18 +17,47 @@ namespace Chat_GUI.ViewModels
         private ObservableCollection<ConnectedUser.ConnectedUser> _connectedUsers;
         static readonly object _lock = new object();
         private bool _connected;
-
+        private PrivateMessage lastPrivateMessage;
+        public PrivateMessage LastPrivateMessage
+        {
+            get
+            {
+                return lastPrivateMessage;
+            }
+            set
+            {
+                lastPrivateMessage = value;
+                OnPropertyChanged("LastPrivateMessage");
+            }
+        }
+        private ConversationsViewModel _privateConvs;
+        private PrivateConversationsWindow _privateWindow;
+        public ConversationsViewModel PrivateConversations
+        {
+            get
+            {
+                return _privateConvs;
+            }
+        }
+        private List<PrivateConversationViewModel> _conversations;
         public ConnectionViewModel()
         {
             _chatHistory = new ObservableCollection<string>();
             _log = new ObservableCollection<string>();
             _connectedUsers = new ObservableCollection<ConnectedUser.ConnectedUser>();
+            _privateConvs = new ConversationsViewModel();
+
         }
         public bool Connected
         {
             get
             {
                 return _connected;
+            }
+            set
+            {
+                _connected = value;
+                OnPropertyChanged("Connected");
             }
         }
         public ObservableCollection<string> ChatHistory
@@ -51,7 +81,18 @@ namespace Chat_GUI.ViewModels
                 return _connectedUsers;
             }
         }
-
+        int myId = -1;
+        private ConnectedUser.ConnectedUser GetUserById(int id)
+        {
+            foreach (var user in ConnectedUsers)
+            {
+                if (user.Id == id)
+                {
+                    return user;
+                }
+            }
+            return null;
+        }
         public string Ip { get; set; } = "";
         public int Port { get; set; } = -1;
         public string Username { get; set; }
@@ -63,21 +104,20 @@ namespace Chat_GUI.ViewModels
             Username = username;
             try
             {
-                _log.Add("Próba połączenia z: " + ip + "...");
+                _chatHistory.Add("Próba połączenia z: " + ip + "...");
                 _connection.Connect(ip, port, username);
-                _log.Add("Połączono z: " + ip + "!");
-                _connected = true;
-                OnPropertyChanged("Log");
-                OnPropertyChanged("Connected");
+                _chatHistory.Add("Połączono z: " + ip + " jako " + username + "!");
+                BinaryFormatter formatter = new BinaryFormatter();
+                myId = int.Parse(formatter.Deserialize(_connection.GetStream()).ToString());
+                Connected = true;
                 return true;
             }
 
             catch
             {
-                _log.Add("Próba połączenia z: " + ip + " nie powiodła się!");
-                _connected = false;
+                _chatHistory.Add("Próba połączenia z: " + ip + " nie powiodła się!");
+                Connected = false;
                 OnPropertyChanged("Log");
-                OnPropertyChanged("Connected");
                 return false;
             }
         }
@@ -85,37 +125,42 @@ namespace Chat_GUI.ViewModels
         {
             try
             {
-                _log.Add("Próba połączenia z: " + Ip + "...");
+                _chatHistory.Add("Próba połączenia z: " + Ip + "...");
                 _connection = new Connection();
                 _connection.Connect(Ip, Port, Username);
-                _log.Add("Połączono z: " + Ip + "!");
-                _connected = true;
+                _chatHistory.Add("Połączono z: " + Ip + "!");
+                Connected = true;
                 OnPropertyChanged("Log");
-                OnPropertyChanged("Connected");
                 Work();
                 return true;
             }
 
             catch
-            { 
-                _log.Add("Próba połączenia z: " + Ip + " nie powiodła się!");
-                _connected = false;
+            {
+                _chatHistory.Add("Próba połączenia z: " + Ip + " nie powiodła się!");
+                Connected = false;
                 OnPropertyChanged("Log");
                 OnPropertyChanged("Connected");
                 return false;
             }
         }
+
+
+
         public void Disconnect()
         {
             if (_connected)
             {
                 _connection.Disconnect();
-                OnPropertyChanged("Connected");
+                Connected = false;
+                ConnectedUsers.Clear();
+                ChatHistory.Add("Rozłączono");
             }
 
         }
         public void ReceiveMessages()
         {
+            _conversations = new List<PrivateConversationViewModel>();
             try
             {
                 var _connectionStream = _connection.GetStream();
@@ -170,7 +215,7 @@ namespace Chat_GUI.ViewModels
                             {
                                 App.Current.Dispatcher.Invoke((Action)delegate
                                 {
-                                    _log.Add("Server has been stopped!");
+                                    ChatHistory.Add("Server has been stopped!");
                                 });
 
                                 OnPropertyChanged("Log");
@@ -178,21 +223,124 @@ namespace Chat_GUI.ViewModels
                             _connected = false;
                         }
                     }
+                    else if (msg is PrivateMessage)
+                    {
+                        var _msg = msg as PrivateMessage;
+                        if (_msg.UserIDTo == myId)
+                        {
+                            var conv = _conversations.Find(x => x.Partner.Id == _msg.UserIDFrom);
+                            if (conv == null)
+                            {
+                                var newPrivate = new PrivateConversationViewModel(GetUserById(_msg.UserIDFrom), this);
+                                lock (_lock)
+                                {
+                                    _conversations.Add(newPrivate);
+                                }
+
+                                App.Current.Dispatcher.Invoke((Action)delegate
+                                {
+                                    PrivateConversations.Add(newPrivate);
+                                    newPrivate.IsActive = true;
+                                    newPrivate.Add(GetUserById(_msg.UserIDFrom).Nickname + ": " + _msg.Content);
+                                    if (_privateWindow == null)
+                                    {
+                                        _privateWindow = new PrivateConversationsWindow(PrivateConversations);
+                                        _privateWindow.Show();
+                                    }
+
+                                });
+                            }
+                            else
+                            {
+                                App.Current.Dispatcher.Invoke((Action)delegate
+                                {
+                                    conv.Add(GetUserById(_msg.UserIDFrom).Nickname + ": " + _msg.Content);
+
+                                    if (_privateWindow == null)
+                                    {
+                                        _privateWindow = new PrivateConversationsWindow(PrivateConversations);
+                                        _privateWindow.Show();
+                                    }
+                                });
+
+                            }
+                        }
+                        else
+                        {
+                            var conv = _conversations.Find(x => x.Partner.Id == _msg.UserIDTo);
+                            if (conv == null)
+                            {
+                                var user = GetUserById(_msg.UserIDTo);
+                                if (user == null) continue;
+                                var newPrivate = new PrivateConversationViewModel(user, this);
+                                newPrivate.IsActive = true;
+                                conv = newPrivate;
+
+                                lock (_lock)
+                                {
+                                    _conversations.Add(conv);
+                                }
+
+                            }
+                            App.Current.Dispatcher.Invoke((Action)delegate
+                            {
+                                //  PrivateConversations.Add(conv);
+                                conv.Add(GetUserById(_msg.UserIDFrom).Nickname + ": " + _msg.Content);
+                            });
+                        }
+
+                    }
                 }
             }
             catch
             {
-                _connected = false;
+                //  _connected = false;
+                throw;
                 OnPropertyChanged("Connected");
+            }
+
+        }
+        public void AddConversation(ConnectedUser.ConnectedUser _targetUser)
+        {
+            _privateConvs.Add(new PrivateConversationViewModel(_targetUser, this));
+            _conversations.Add(_privateConvs[0]);
+            if (_privateWindow == null)
+            {
+                _privateWindow = new PrivateConversationsWindow(_privateConvs);
+            }
+            _privateWindow.Show();
+        }
+
+
+        internal void SendPrivateMessage(int id, string msg)
+        {
+            try
+            {
+                PrivateMessage pm = new PrivateMessage();
+                pm.UserIDTo = id;
+                pm.Content = msg;
+                BinaryFormatter writer = new BinaryFormatter();
+                try
+                {
+                    writer.Serialize(_connection.GetStream(), pm);
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+            catch
+            {
+                throw;
             }
 
         }
         public void SendMessage(string msg)
         {
-            BinaryWriter writer = new BinaryWriter(_connection.GetStream());
+            BinaryFormatter writer = new BinaryFormatter();
             try
             {
-                writer.Write(Username + ": " + msg);
+                writer.Serialize(_connection.GetStream(), Username + ": " + msg);
             }
             catch
             {

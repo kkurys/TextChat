@@ -35,8 +35,12 @@ namespace Chat_GUI.Models
 
         public void Disconnect()
         {
-            GetStream().Close();
-            _tcpClient.Close();
+            if (GetStream() != null)
+            {
+                GetStream().Close();
+                _tcpClient.Close();
+            }
+
         }
         #endregion
         #region messages
