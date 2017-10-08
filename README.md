@@ -1,6 +1,6 @@
 # TextChat
 TCP/IP Chat with polish GUI.
-Functionalaities:
+Functionalities:
 - hosting a server
 - connecting to multiple servers at once
 - private messages between users
